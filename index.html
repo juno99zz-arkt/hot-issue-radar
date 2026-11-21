@@ -486,6 +486,7 @@ let state = {
   sort: 'newest',
   bookmarks: [],
   customReports: [],
+  remoteReports: [],
   queue: [],
   activeReportId: null
 };
@@ -514,7 +515,35 @@ function saveStorage() {
 }
 
 function getAllReports() {
-  return [...state.customReports, ...DEFAULT_REPORTS];
+  return [...state.customReports, ...state.remoteReports, ...DEFAULT_REPORTS];
+}
+
+// 자동 발행된 리포트 목록(reports/manifest.json)을 읽어 합친다. 없거나 형식이 틀리면 무시한다.
+async function loadRemoteReports() {
+  try {
+    const res = await fetch('./reports/manifest.json', { cache: 'no-store' });
+    if (!res.ok) return;
+    const list = await res.json();
+    if (!Array.isArray(list)) return;
+    const known = new Set(DEFAULT_REPORTS.map(r => r.id));
+    state.remoteReports = list.filter(r =>
+      r && typeof r.id === 'string' && typeof r.title === 'string' && !known.has(r.id) &&
+      typeof r.siteUrl === 'string' && /^\.\/reports\/[\w.-]+\.html$/.test(r.siteUrl)
+    ).map(r => ({
+      id: r.id,
+      date: String(r.date || ''),
+      timeLabel: String(r.timeLabel || r.date || ''),
+      category: CATEGORIES.includes(r.category) && r.category !== '전체' ? r.category : '시사',
+      trigger: String(r.trigger || '자동 감시'),
+      title: r.title,
+      subtitle: String(r.subtitle || ''),
+      siteUrl: r.siteUrl,
+      driveUrl: /^https:\/\/drive\.google\.com\//.test(r.driveUrl || '') ? r.driveUrl : ''
+    }));
+    if (state.remoteReports.length) { renderAll(); lucide.createIcons(); }
+  } catch (e) {
+    // 목록을 못 읽어도 기본 리포트는 그대로 보인다
+  }
 }
 
 function escapeHtml(str) {
@@ -1010,6 +1039,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   renderAll();
   lucide.createIcons();
+  loadRemoteReports();
 });
 </script>
 </body>
