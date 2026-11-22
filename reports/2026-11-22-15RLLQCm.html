@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>안드레 카파시(Andrej Karpathy) 딥리서치 리포트 — 2026년 11월 기준</title>
+<style>
+  :root {
+    --bg: #0E1013;
+    --surface: #151920;
+    --border: #262D38;
+    --text: #F2F4F8;
+    --text-muted: #A6B0C0;
+    --amber: #F5A623;
+    --steel: #4EA1F3;
+    --green: #34D399;
+    --red: #F87171;
+    --purple: #A78BFA;
+  }
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  html, body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+    font-size: 17px;
+    line-height: 1.78;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    line-break: strict;
+    -webkit-font-smoothing: antialiased;
+  }
+  a {
+    color: var(--steel);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(78, 161, 243, 0.35);
+  }
+  a:hover {
+    color: var(--amber);
+    border-bottom-color: var(--amber);
+  }
+  .page {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 48px 28px 96px;
+  }
+  /* Header / Masthead */
+  .masthead {
+    border-top: 3px solid var(--amber);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 0 28px;
+    margin-bottom: 40px;
+  }
+  .kicker-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--amber);
+    font-weight: 700;
+    margin-bottom: 18px;
+  }
+  .timestamp {
+    color: var(--text-muted);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+  h1 {
+    font-size: clamp(28px, 4.2vw, 44px);
+    line-height: 1.24;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: #FFFFFF;
+    max-width: 100%;
+    margin-bottom: 18px;
+  }
+  .deck {
+    font-size: 19px;
+    line-height: 1.65;
+    color: #D2DAE6;
+    max-width: 100%;
+    font-weight: 400;
+  }
+  /* Hero Image */
+  .hero-wrap {
+    margin: 0 0 48px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 14px;
+  }
+  .hero-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border: 1px solid var(--border);
+  }
+  .hero-caption {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 10px;
+  }
+  /* Section Headings */
+  section {
+    margin-bottom: 64px;
+    padding-top: 28px;
+    border-top: 1px solid var(--border);
+  }
+  .sec-num {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--amber);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: block;
+  }
+  h2 {
+    font-size: clamp(22px, 3vw, 30px);
+    line-height: 1.32;
+    font-weight: 800;
+    color: #FFFFFF;
+    max-width: 100%;
+    margin-bottom: 24px;
+  }
+  h3 {
+    font-size: 20px;
+    line-height: 1.4;
+    font-weight: 700;
+    color: #E8EEF7;
+    margin: 32px 0 14px;
+    max-width: 100%;
+  }
+  p {
+    margin-bottom: 18px;
+    max-width: 100%;
+    color: #E2E7F0;
+  }
+  /* 3-Step Summary Strip (Open Grid, No Card Boxes) */
+  .tri-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+    margin: 28px 0 32px;
+    padding: 24px 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .tri-col {
+    border-left: 2px solid var(--amber);
+    padding-left: 16px;
+  }
+  .tri-col:nth-child(2) {
+    border-left-color: var(--steel);
+  }
+  .tri-col:nth-child(3) {
+    border-left-color: var(--green);
+  }
+  .tri-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--amber);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .tri-col:nth-child(2) .tri-label { color: var(--steel); }
+  .tri-col:nth-child(3) .tri-label { color: var(--green); }
+  .tri-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #FFFFFF;
+    margin-bottom: 8px;
+  }
+  .tri-desc {
+    font-size: 15px;
+    line-height: 1.65;
+    color: #C5CFDE;
+    margin-bottom: 0;
+  }
+  /* Pull Quote */
+  blockquote.pull {
+    border-left: 4px solid var(--amber);
+    padding: 8px 0 8px 24px;
+    margin: 32px 0;
+    max-width: 100%;
+  }
+  blockquote.pull p {
+    font-size: 21px;
+    line-height: 1.55;
+    font-weight: 600;
+    color: #FFFFFF;
+    margin-bottom: 10px;
+  }
+  blockquote.pull cite {
+    font-size: 14px;
+    font-style: normal;
+    color: var(--text-muted);
+  }
+  /* Fact / Debate Table */
+  .table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    margin: 24px 0 36px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+    line-height: 1.65;
+  }
+  thead th {
+    text-align: left;
+    padding: 14px 14px;
+    border-top: 2px solid var(--amber);
+    border-bottom: 1px solid var(--border);
+    color: #FFFFFF;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.02);
+  }
+  tbody td {
+    padding: 16px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    color: #D8E0EC;
+  }
+  .badge {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 3px;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+  }
+  .badge-fact { background: rgba(52, 211, 153, 0.16); color: var(--green); border: 1px solid rgba(52, 211, 153, 0.4); }
+  .badge-debate { background: rgba(245, 166, 35, 0.16); color: var(--amber); border: 1px solid rgba(245, 166, 35, 0.4); }
+  .badge-rumor { background: rgba(248, 113, 113, 0.16); color: var(--red); border: 1px solid rgba(248, 113, 113, 0.4); }
+  /* Speculation Block */
+  .spec-block {
+    border-top: 1px dashed var(--border);
+    border-bottom: 1px dashed var(--border);
+    padding: 24px 0;
+    margin: 28px 0;
+  }
+  .spec-list {
+    list-style: none;
+    padding: 0;
+  }
+  .spec-list li {
+    padding: 12px 0 12px 18px;
+    border-left: 2px solid var(--red);
+    margin-bottom: 14px;
+    color: #D2DAE6;
+    font-size: 15.5px;
+  }
+  .spec-list li strong {
+    color: #FFFFFF;
+  }
+  /* SVG Containers */
+  .viz-wrap {
+    margin: 32px 0 36px;
+    padding: 24px 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .viz-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #FFFFFF;
+    margin-bottom: 6px;
+  }
+  .viz-sub {
+    font-size: 13.5px;
+    color: var(--text-muted);
+    margin-bottom: 18px;
+  }
+  svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  /* Scenario List */
+  .scenario-item {
+    padding: 18px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .scenario-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .scenario-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #FFFFFF;
+  }
+  .scenario-prob {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--amber);
+  }
+  /* References */
+  .refs {
+    margin-top: 64px;
+    padding-top: 28px;
+    border-top: 2px solid var(--border);
+  }
+  .refs h2 {
+    font-size: 20px;
+    margin-bottom: 16px;
+  }
+  .refs ol {
+    padding-left: 22px;
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .refs li {
+    margin-bottom: 8px;
+  }
+  @media (max-width: 760px) {
+    .tri-grid {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+    .page {
+      padding: 32px 18px 64px;
+    }
+  }
+</style>
+</head>
+<body>
+<article class="page">
+
+  <header class="masthead">
+    <div class="kicker-row">
+      <span>HOT ISSUE DEEP RESEARCH · AI FRONTIER DOSSIER</span>
+      <span class="timestamp">조사 기준: 2026년 11월 22일 09시 KST</span>
+    </div>
+    <h1>안드레 카파시: 오픈AI·테슬라를 거쳐 앤트로픽으로 — 'AI가 AI를 학습시키는 시대'의 설계자</h1>
+    <p class="deck">스탠퍼드 CS231n의 전설이자 '바이브 코딩'의 창시자 안드레이 카파시(Andrej Karpathy)가 교육 스타트업 유레카 랩스를 뒤로하고 2026년 5월 앤트로픽 사전학습팀에 전격 합류했다. LLM 위키 열풍과 'AI 4단계 계층론' 논쟁까지, 2026년 AI 판도를 흔드는 그의 행적과 쟁점, 향후 시나리오를 전방위 교차 검증했다.</p>
+  </header>
+
+  <div class="hero-wrap">
+    
+    <p class="hero-caption">일러스트: 사전학습(Pre-training) 아키텍처와 자기개선형 AI 연구(Autoresearch)의 융합을 형상화한 에디토리얼 그래픽.</p>
+  </div>
+
+  <!-- SECTION 1 -->
+  <section id="summary">
+    <span class="sec-num">01 / Executive Summary</span>
+    <h2>요약: 왜 전 세계 AI 업계가 다시 카파시의 일거수일투족에 주목하는가</h2>
+
+    <div class="tri-grid">
+      <div class="tri-col">
+        <div class="tri-label">발단 · 2015~2024</div>
+        <div class="tri-title">현대 AI의 모든 변곡점을 관통</div>
+        <p class="tri-desc">스탠퍼드 CS231n 설계, 오픈AI 창립 멤버, 테슬라 오토파일럿 AI 총괄을 거쳐 2024년 AI 교육 스타트업 '유레카 랩스(Eureka Labs)'를 창업하며 개발자 대중화의 아이콘으로 자리매김했다.</p>
+      </div>
+      <div class="tri-col">
+        <div class="tri-label">확산 · 2025~2026.04</div>
+        <div class="tri-title">바이브 코딩에서 에이전틱 엔지니어링·LLM 위키로</div>
+        <p class="tri-desc">2025년 '바이브 코딩' 신드롬을 일으킨 데 이어, 2026년 4월 옵시디언 기반 'LLM 위키' 패턴을 공개하고 세콰이어 대담에서 '에이전틱 엔지니어링'과 '소프트웨어 3.0'을 선언했다.</p>
+      </div>
+      <div class="tri-col">
+        <div class="tri-label">급전개 · 2026.05~11</div>
+        <div class="tri-title">앤트로픽 전격 합류와 AI 계층론 논쟁</div>
+        <p class="tri-desc">2026년 5월 19일 앤트로픽 사전학습팀에 합류해 '클로드로 클로드의 사전학습을 가속하는 팀'을 신설했다. 10월에는 'AI 4단계 계층론'을 제시하며 글로벌 AI 격차 논쟁에 불을 붙였다.</p>
+      </div>
+    </div>
+
+    <p>안드레이 카파시(Andrej Karpathy, 1986년생)는 단순한 스타 연구자가 아니라 <strong>AI 패러다임의 전환점을 가장 먼저 포착하고 언어화하는 인물</strong>이다. 2017년 '소프트웨어 2.0'으로 딥러닝 시대를 정의했고, 2025년 '바이브 코딩(Vibe Coding)'으로 개발 문화를 뒤바꿨다. 그런 그가 2026년 5월, 자신이 세운 교육 스타트업 유레카 랩스를 사실상 보류하고 오픈AI의 최대 경쟁사인 <strong>앤트로픽(Anthropic)의 사전학습(Pre-training) 연구팀</strong>으로 복귀한 사건은 올해 AI 업계 최대의 인재 지각변동으로 기록됐다.</p>
+    <p>그의 합류 이후 앤트로픽에는 노벨상 수상자 존 점퍼(John Jumper), 버클리 CS 학과장 젤라니 넬슨(Jelani Nelson) 등 초특급 연구자들이 연달아 합류했고, 2026년 11월에는 독립 평가기관 METR이 "앤트로픽이 AI를 활용해 자체 모델 개선 속도를 약 2배 가속하고 있다"는 보고서를 내놓으며 카파시가 맡은 <strong>'AI 가속 연구(Autoresearch)'</strong>의 파급력이 현실화하고 있다.</p>
+  </section>
+
+  <!-- SECTION 2 -->
+  <section id="background">
+    <span class="sec-num">02 / Background &amp; Timeline</span>
+    <h2>배경 및 진행현황: 학자에서 자율주행 사령관, 교육자, 그리고 프론티어 R&amp;D 복귀까지</h2>
+
+    <p>체코슬로바키아 브라티슬라바(현 슬로바키아)에서 태어나 15세에 캐나다 토론토로 이주한 카파시는 토론토대에서 딥러닝의 대부 제프리 힌튼(Geoffrey Hinton)의 수업을 들으며 AI에 입문했다. 이후 스탠퍼드대 박사 과정에서 페이페이 리(Fei-Fei Li)의 지도를 받으며 최초의 딥러닝 전문 강좌 <strong>CS231n</strong>을 설계·강의해 전 세계 AI 엔지니어들의 교과서를 만들었다.</p>
+    <p>2015년 오픈AI 창립 멤버로 합류한 뒤, 2017년 일론 머스크의 영입으로 테슬라 AI 디렉터가 되어 오토파일럿 컴퓨터 비전과 대규모 주행 데이터 엔진 구축을 진두지휘했다. 라이다(LiDAR)를 배제하고 순수 비전과 데이터 자동 라벨링으로 시스템을 단순화한 테슬라 특유의 아키텍처는 그의 작품이다. 2023년 오픈AI에 복귀했다가 2024년 2월 퇴사한 뒤, 같은 해 7월 AI 네이티브 교육 플랫폼 '유레카 랩스'를 창업해 유튜브 <em>Zero to Hero</em> 시리즈와 <code>nanoGPT</code> 등으로 오픈소스 교육 생태계를 이끌었다.</p>
+    <p>하지만 2025년 말부터 에이전트형 코딩 모델의 급격한 도약을 체감한 그는 2026년 4월 4일 깃허브 기스트(Gist)로 <strong>'LLM 위키(LLM Wiki)'</strong> 아키텍처를 공개하며 옵시디언(Obsidian)과 코딩 에이전트(Claude Code, Codex)를 결합한 개인 지식베이스 열풍을 일으켰다. 이어 4월 29일 세콰이어 캐피털 AI Ascent 무대에서 <em>"프로그래머로서 지금처럼 뒤처진 느낌을 받은 적이 없다"</em>고 고백한 지 불과 3주 만인 <strong>5월 19일</strong>, 앤트로픽 합류를 전격 발표했다.</p>
+
+    <div class="viz-wrap">
+      <div class="viz-title">안드레 카파시 커리어 및 2026년 핵심 변곡점 타임라인</div>
+      <div class="viz-sub">2015년 오픈AI 창립부터 2026년 11월 앤트로픽 사전학습 가속 연구까지 (확정 사실 기준)</div>
+      <svg viewBox="0 0 960 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="안드레 카파시 타임라인 차트">
+        <rect x="0" y="0" width="960" height="250" fill="#12161C" rx="4"/>
+        <!-- Main axis line -->
+        <line x1="45" y1="125" x2="915" y2="125" stroke="#334155" stroke-width="3"/>
+        <!-- Nodes -->
+        <!-- 1: 2015 -->
+        <circle cx="80" cy="125" r="7" fill="#4EA1F3"/>
+        <line x1="80" y1="118" x2="80" y2="78" stroke="#4EA1F3" stroke-width="1.5"/>
+        <text x="80" y="54" fill="#4EA1F3" font-size="12" font-weight="700" text-anchor="middle">2015.12</text>
+        <text x="80" y="70" fill="#F2F4F8" font-size="12" text-anchor="middle">OpenAI 창립 &amp; CS231n</text>
+
+        <!-- 2: 2017 -->
+        <circle cx="210" cy="125" r="7" fill="#4EA1F3"/>
+        <line x1="210" y1="132" x2="210" y2="172" stroke="#4EA1F3" stroke-width="1.5"/>
+        <text x="210" y="192" fill="#4EA1F3" font-size="12" font-weight="700" text-anchor="middle">2017~2022</text>
+        <text x="210" y="210" fill="#F2F4F8" font-size="12" text-anchor="middle">테슬라 AI 총괄</text>
+        <text x="210" y="226" fill="#A6B0C0" font-size="11" text-anchor="middle">오토파일럿 비전 주도</text>
+
+        <!-- 3: 2024.07 -->
+        <circle cx="355" cy="125" r="7" fill="#34D399"/>
+        <line x1="355" y1="118" x2="355" y2="78" stroke="#34D399" stroke-width="1.5"/>
+        <text x="355" y="54" fill="#34D399" font-size="12" font-weight="700" text-anchor="middle">2024.07</text>
+        <text x="355" y="70" fill="#F2F4F8" font-size="12" text-anchor="middle">유레카 랩스 창업</text>
+
+        <!-- 4: 2025.02 -->
+        <circle cx="495" cy="125" r="7" fill="#A78BFA"/>
+        <line x1="495" y1="132" x2="495" y2="172" stroke="#A78BFA" stroke-width="1.5"/>
+        <text x="495" y="192" fill="#A78BFA" font-size="12" font-weight="700" text-anchor="middle">2025.02</text>
+        <text x="495" y="210" fill="#F2F4F8" font-size="12" text-anchor="middle">'바이브 코딩' 창시</text>
+        <text x="495" y="226" fill="#A6B0C0" font-size="11" text-anchor="middle">개발 패러다임 전환</text>
+
+        <!-- 5: 2026.04 -->
+        <circle cx="635" cy="125" r="7" fill="#F5A623"/>
+        <line x1="635" y1="118" x2="635" y2="78" stroke="#F5A623" stroke-width="1.5"/>
+        <text x="635" y="54" fill="#F5A623" font-size="12" font-weight="700" text-anchor="middle">2026.04</text>
+        <text x="635" y="70" fill="#F2F4F8" font-size="12" text-anchor="middle">LLM 위키 &amp; 세콰이어 대담</text>
+
+        <!-- 6: 2026.05 -->
+        <circle cx="765" cy="125" r="9" fill="#F5A623" stroke="#FFFFFF" stroke-width="2"/>
+        <line x1="765" y1="134" x2="765" y2="172" stroke="#F5A623" stroke-width="1.5"/>
+        <text x="765" y="192" fill="#F5A623" font-size="12" font-weight="700" text-anchor="middle">2026.05.19</text>
+        <text x="765" y="210" fill="#FFFFFF" font-size="12" font-weight="700" text-anchor="middle">앤트로픽 전격 합류</text>
+        <text x="765" y="226" fill="#A6B0C0" font-size="11" text-anchor="middle">사전학습 가속팀 신설</text>
+
+        <!-- 7: 2026.10~11 -->
+        <circle cx="885" cy="125" r="7" fill="#F87171"/>
+        <line x1="885" y1="118" x2="885" y2="78" stroke="#F87171" stroke-width="1.5"/>
+        <text x="885" y="54" fill="#F87171" font-size="12" font-weight="700" text-anchor="middle">2026.10~11</text>
+        <text x="885" y="70" fill="#F2F4F8" font-size="12" text-anchor="middle">AI 4단계 계층론 &amp; METR</text>
+      </svg>
+    </div>
+
+    <blockquote class="pull">
+      <p>"사유(Thinking)는 AI에게 외주를 줄 수 있어도, 이해(Understanding)는 결코 외주를 줄 수 없다. 우리는 동물을 만드는 것이 아니라 통계적 유령(Ghosts)을 소환하고 있다."</p>
+      <cite>— 안드레 카파시, 세콰이어 캐피털 AI Ascent 2026 대담 (2026년 4월 29일, <a href="http://www.youtube.com/watch?v=96jN2OCOfLs" target="_blank" rel="noopener">YouTube 원문</a>)</cite>
+    </blockquote>
+  </section>
+
+  <!-- SECTION 3 -->
+  <section id="debates">
+    <span class="sec-num">03 / Controversies, Evidence &amp; Speculations</span>
+    <h2>논란사항과 증거, 각종 추정사항: 팩트와 가설의 경계</h2>
+
+    <p>카파시의 2026년 행보는 단순한 이직을 넘어 AI 업계의 핵심 논쟁거리들을 수면 위로 끌어올렸다. 주요 언론 보도, 본인 발언, 그리고 커뮤니티의 추론을 <strong>확정 사실 · 제기된 쟁점 · 미확인 추정</strong>으로 분리해 대조했다.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 18%;">핵심 쟁점</th>
+            <th style="width: 34%;">제기된 정황 및 출처</th>
+            <th style="width: 32%;">당사자 입장 및 반론</th>
+            <th style="width: 16%;">검증 상태</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>오픈AI 대신 앤트로픽을 선택한 이유</strong></td>
+            <td>오픈AI가 제품·상용화 중심으로 기울자, 순수 R&amp;D와 '클로드로 클로드를 개선하는' 자기개선 사전학습 연구에 매력을 느껴 앤트로픽(닉 조셉 산하)을 택했다는 분석 (<a href="https://techcrunch.com/2026/05/19/openai-co-founder-andrej-karpathy-joins-anthropics-pre-training-team/" target="_blank" rel="noopener">TechCrunch</a>, <a href="https://explainx.ai/blog/andrej-karpathy-joins-anthropic-pre-training-2026" target="_blank" rel="noopener">explainx.ai</a>).</td>
+            <td>카파시는 X를 통해 "향후 몇 년간 LLM 프론티어 연구가 결정적일 것이며 R&amp;D로 돌아가고 싶었다"고만 밝혔다. 특정 경쟁사 비판은 하지 않았다.</td>
+            <td><span class="badge badge-fact">확정 사실(합류)</span><br><span class="badge badge-debate" style="margin-top:6px;">해석 분분(동기)</span></td>
+          </tr>
+          <tr>
+            <td><strong>유레카 랩스 사실상 중단 논란</strong></td>
+            <td>2024년 7월 야심 차게 창업한 AI 교육 스타트업 '유레카 랩스'가 2년도 안 돼 사실상 휴면·보류 상태에 들어갔다는 지적 (<a href="https://www.trendingtopics.eu/openai-co-founder-andrej-karpathy-joins-anthropic-to-improve-claude/" target="_blank" rel="noopener">Trending Topics</a>).</td>
+            <td>카파시는 합류 발표문에서 "교육에 대한 열정은 여전하며 때가 되면 다시 돌아올 계획"이라고 해명했다.</td>
+            <td><span class="badge badge-fact">확정 사실(보류)</span></td>
+          </tr>
+          <tr>
+            <td><strong>AI 4단계 계층론과 격차 논쟁</strong></td>
+            <td>2026년 10월 11일 X 게시물에서 인류를 AI 미사용(75%), 무료 챗봇(20%), 코딩·프로젝트 활용(0.2%), 미공개 프론티어 접근(0.00006%, 약 5,000명)으로 구분해 AI 불평등 논쟁 촉발 (<a href="https://www.joongang.co.kr/factpl?page=4" target="_blank" rel="noopener">중앙일보 팩플</a>).</td>
+            <td>공식 통계가 아닌 카파시 본인의 대략적 추정치이며, 고정된 계급이 아니라 활용 깊이와 접근권의 격차를 환기하기 위한 문제 제기라는 반론이 공존한다.</td>
+            <td><span class="badge badge-debate">쟁점 공방</span></td>
+          </tr>
+          <tr>
+            <td><strong>바이브 코딩의 역설 (코드 품질 저하)</strong></td>
+            <td>본인이 창시한 '바이브 코딩'이 확산되자, 2026년 들어 AI가 짠 코드가 "지저분하고 부풀려져 있다(bloaty &amp; gross)"며 '에이전틱 엔지니어링'으로 선회했다는 지적 (<a href="http://www.youtube.com/watch?v=96jN2OCOfLs" target="_blank" rel="noopener">Sequoia 대담</a>).</td>
+            <td>카파시는 "바이브 코딩은 모두의 바닥(floor)을 높이는 것이고, 에이전틱 엔지니어링은 전문가의 품질 기준을 지키며 10배 이상 가속하는 규율"이라며 역할이 다르다고 선을 그었다.</td>
+            <td><span class="badge badge-fact">확정 사실(발언)</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="spec-block">
+      <h3>미확인 추정 (커뮤니티·유튜브 가설)</h3>
+      <p style="font-size: 14.5px; color: var(--text-muted); margin-bottom: 16px;">아래 항목은 공식 확인되지 않은 온라인 커뮤니티(Reddit, X) 및 유튜브 해설에서 제기되는 추론으로, 사실과 엄격히 구분해야 한다.</p>
+      <ul class="spec-list">
+        <li><strong>[미확인 추정] "AI 코드 품질 문제를 뿌리부터 고치려 사전학습으로 갔다"</strong> — 2025년 말~2026년 초 AI 생성 코드의 조잡함에 실망한 카파시가 프롬프팅 한계를 느끼고 아예 베이스 모델의 사전학습 단계에서 이를 해결하려 앤트로픽에 합류했다는 개발자 커뮤니티 해석.</li>
+        <li><strong>[미확인 추정] "LLM 위키·컨텍스트 엔지니어링의 클로드 제품화"</strong> — 카파시가 공개한 옵시디언 기반 LLM 위키와 자율 루프(<code>/goal</code>) 개념이 향후 Claude Code의 차세대 '컨텍스트 앱스토어'나 조직 기억(Organization Memory) 기능으로 직결될 것이라는 유튜버들의 전망 (<a href="http://www.youtube.com/watch?v=brB-hSiV2iU" target="_blank" rel="noopener">Nate Herk 분석</a>).</li>
+        <li><strong>[미확인 추정] "트랜스포머 한계 돌파를 위한 차세대 아키텍처 비밀 프로젝트"</strong> — 카파시가 기존 트랜스포머의 한계를 지적하며 신경과학적 모방을 언급해 온 만큼, 앤트로픽 내부에서 비공개 차세대 모델 아키텍처 실험을 주도할 것이라는 추측.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- SECTION 4 -->
+  <section id="scenarios">
+    <span class="sec-num">04 / Most Probable Scenarios</span>
+    <h2>가장 확률이 높은 시나리오: 카파시와 앤트로픽이 그릴 향후 1~2년</h2>
+
+    <p>앤트로픽의 2026년 11월 기업공개(IPO) 및 2배속 모델 개선(METR 보고서), 그리고 카파시의 사전학습 가속팀 신설이라는 구조적 변수를 바탕으로 향후 전개 가능한 4가지 시나리오를 도출했다.</p>
+
+    <div class="viz-wrap">
+      <div class="viz-title">향후 12~24개월 시나리오별 상대적 발생 가능성 (정성 평가)</div>
+      <div class="viz-sub">※ 통계적 예측치가 아닌, 현재 공개된 기술·시장·조직 변수를 종합한 정성적 비중 평가입니다.</div>
+      <svg viewBox="0 0 960 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="시나리오별 상대적 발생 가능성 가로 막대 차트">
+        <rect x="0" y="0" width="960" height="220" fill="#12161C" rx="4"/>
+        <!-- Bar 1 -->
+        <text x="24" y="42" fill="#F2F4F8" font-size="14" font-weight="700">시나리오 1. AI 가속 사전학습(Autoresearch)으로 클로드 차세대 모델 격차 확대</text>
+        <rect x="24" y="52" width="760" height="14" fill="#1E2530" rx="3"/>
+        <rect x="24" y="52" width="570" height="14" fill="#F5A623" rx="3"/>
+        <text x="800" y="64" fill="#F5A623" font-size="14" font-weight="700">매우 높음 (유력)</text>
+
+        <!-- Bar 2 -->
+        <text x="24" y="96" fill="#F2F4F8" font-size="14" font-weight="700">시나리오 2. '에이전틱 엔지니어링' 및 LLM 위키 패턴의 기업용 표준화</text>
+        <rect x="24" y="106" width="760" height="14" fill="#1E2530" rx="3"/>
+        <rect x="24" y="106" width="495" height="14" fill="#4EA1F3" rx="3"/>
+        <text x="800" y="118" fill="#4EA1F3" font-size="14" font-weight="700">높음</text>
+
+        <!-- Bar 3 -->
+        <text x="24" y="150" fill="#F2F4F8" font-size="14" font-weight="700">시나리오 3. 2~3년 내 프론티어 R&amp;D 마무리 후 유레카 랩스(AI 교육) 복귀</text>
+        <rect x="24" y="160" width="760" height="14" fill="#1E2530" rx="3"/>
+        <rect x="24" y="160" width="340" height="14" fill="#34D399" rx="3"/>
+        <text x="800" y="172" fill="#34D399" font-size="14" font-weight="700">중간</text>
+
+        <!-- Bar 4 -->
+        <text x="24" y="204" fill="#A6B0C0" font-size="13">시나리오 4. 대규모 사전학습의 수익성·데이터 한계 봉착 및 조직 갈등으로 조기 이탈 — 낮음 (보조 변수)</text>
+      </svg>
+    </div>
+
+    <div class="scenario-item">
+      <div class="scenario-head">
+        <span class="scenario-title">시나리오 1. AI 가속 사전학습(Autoresearch)의 본격화와 클로드의 도약</span>
+        <span class="scenario-prob">발생 가능성: 매우 높음</span>
+      </div>
+      <p>카파시가 테슬라에서 증명한 대규모 데이터 큐레이션 역량과 클로드의 자율 연구 능력을 결합해, 데이터 필터링·아키텍처 탐색·하이퍼파라미터 튜닝을 AI가 스스로 수행하는 파이프라인이 고도화된다. 이미 METR 보고서에서 확인된 2배속 개선 흐름이 차세대 클로드 모델의 코딩·추론 성능 격차로 이어질 가능성이 가장 크다.</p>
+    </div>
+
+    <div class="scenario-item">
+      <div class="scenario-head">
+        <span class="scenario-title">시나리오 2. '에이전틱 엔지니어링'과 LLM 위키의 산업 표준화</span>
+        <span class="scenario-prob">발생 가능성: 높음</span>
+      </div>
+      <p>단순 챗봇 질의(2단계)를 넘어, 마크다운 기반 지식베이스(LLM 위키)와 코딩 에이전트를 결합해 업무 전체를 설계·검증하는 '에이전틱 엔지니어링'이 기업 개발 및 지식노동의 표준으로 자리 잡는다. 카파시가 제시한 "이해는 인간의 몫"이라는 원칙에 따라, AI 결과물을 검증·감독하는 역량이 핵심 채용 기준으로 재편될 것이다.</p>
+    </div>
+
+    <div class="scenario-item">
+      <div class="scenario-head">
+        <span class="scenario-title">시나리오 3. 결정적 R&amp;D 변곡점 통과 후 유레카 랩스(교육) 재가동</span>
+        <span class="scenario-prob">발생 가능성: 중간</span>
+      </div>
+      <p>카파시는 오픈AI와 테슬라에서도 핵심 시스템이 궤도에 오르면 미련 없이 떠나 본인의 연구·교육으로 돌아가는 패턴을 보여왔다. 앤트로픽에서 자기개선형 사전학습의 토대를 닦은 뒤, 2~3년 내 AI 네이티브 교육 플랫폼 유레카 랩스로 복귀할 개연성이 충분하다.</p>
+    </div>
+
+    <div class="scenario-item" style="border-bottom: none;">
+      <div class="scenario-head">
+        <span class="scenario-title">시나리오 4. 상장 이후 상업화 압박과 연구 자율성 충돌</span>
+        <span class="scenario-prob" style="color: var(--text-muted);">발생 가능성: 낮음</span>
+      </div>
+      <p>2026년 11월 IPO 이후 앤트로픽이 단기 실적과 제품 상용화에 치중하게 될 경우, 순수 R&amp;D를 중시하는 카파시의 성향과 마찰이 생길 수 있다. 다만 현재 앤트로픽이 연구 인재 영입에 사활을 걸고 있어 단기 내 현실화할 가능성은 낮다.</p>
+    </div>
+  </section>
+
+  <!-- REFERENCES -->
+  <footer class="refs">
+    <h2>참고 출처 및 원문 링크</h2>
+    <ol>
+      <li>TechCrunch (2026-05-19), <a href="https://techcrunch.com/2026/05/19/openai-co-founder-andrej-karpathy-joins-anthropics-pre-training-team/" target="_blank" rel="noopener">OpenAI co-founder Andrej Karpathy joins Anthropic's pre-training team</a></li>
+      <li>Sequoia Capital YouTube (2026-04-29), <a href="http://www.youtube.com/watch?v=96jN2OCOfLs" target="_blank" rel="noopener">Andrej Karpathy: From Vibe Coding to Agentic Engineering w/ Stephanie Zhan</a></li>
+      <li>AI Matters (2026-11-13), <a href="https://aimatters.co.kr/news-report/60543/" target="_blank" rel="noopener">[AI 인물] 안드레이 카파시는 누구인가…오픈AI에서 앤트로픽까지</a></li>
+      <li>explainx.ai (2026-05-22 / 업데이트 2026-11), <a href="https://explainx.ai/blog/andrej-karpathy-joins-anthropic-pre-training-2026" target="_blank" rel="noopener">Andrej Karpathy joins Anthropic's pre-training team &amp; METR Report</a></li>
+      <li>Sentra (2026-10-21), <a href="https://www.sentra.app/articles/karpathy-llm-wiki" target="_blank" rel="noopener">LLM Wiki (2026): Karpathy's Pattern and How to Build One</a></li>
+      <li>중앙일보 팩플 (2026-10-14), <a href="https://www.joongang.co.kr/factpl?page=4" target="_blank" rel="noopener">안드레 카파시 AI 4단계 계층론과 AI 격차 논쟁</a></li>
+      <li>요즘IT (2026-11-17), <a href="https://yozm.wishket.com/magazine/detail/3769/" target="_blank" rel="noopener">안드레 카파시는, 왜 지금 앤트로픽에 갔나</a></li>
+      <li>Nate Herk YouTube (2026-05-19), <a href="http://www.youtube.com/watch?v=brB-hSiV2iU" target="_blank" rel="noopener">What Karpathy Joining Anthropic Actually Means For Claude</a></li>
+    </ol>
+  </footer>
+
+</article>
+</body>
+</html>
