@@ -537,6 +537,7 @@ async function loadRemoteReports() {
       trigger: String(r.trigger || '자동 감시'),
       title: r.title,
       subtitle: String(r.subtitle || ''),
+      heroImg: /^\.\/reports\/img\/[\w.-]+\.(?:jpe?g|png|webp)$/i.test(r.heroImg || '') ? r.heroImg : '',
       siteUrl: r.siteUrl,
       driveUrl: /^https:\/\/drive\.google\.com\//.test(r.driveUrl || '') ? r.driveUrl : ''
     }));
