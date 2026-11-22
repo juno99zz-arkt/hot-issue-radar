@@ -93,26 +93,6 @@
 
     <!-- TAB 1: ARCHIVE -->
     <section id="view-archive" class="space-y-6">
-      <!-- Summary Strip -->
-      <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <div class="rounded-xl border border-slate-800 bg-[#131822] p-4">
-          <div class="text-xs text-slate-400">누적 발행 리포트</div>
-          <div id="stat-total" class="mt-1 font-mono-code text-2xl font-bold text-white">2건</div>
-        </div>
-        <div class="rounded-xl border border-slate-800 bg-[#131822] p-4">
-          <div class="text-xs text-slate-400">감시 모드</div>
-          <div class="mt-1 text-base font-bold text-emerald-400">4시간 조건부</div>
-        </div>
-        <div class="rounded-xl border border-slate-800 bg-[#131822] p-4">
-          <div class="text-xs text-slate-400">모니터링 분야</div>
-          <div class="mt-1 text-base font-bold text-sky-300">전방위 6대 영역</div>
-        </div>
-        <div class="rounded-xl border border-slate-800 bg-[#131822] p-4">
-          <div class="text-xs text-slate-400">저장·알림 연동</div>
-          <div class="mt-1 text-base font-bold text-amber-300">Drive · 옵시디언 · 메일</div>
-        </div>
-      </div>
-
       <!-- Controls -->
       <div class="flex flex-col gap-3 rounded-xl border border-slate-800 bg-[#131822] p-4 md:flex-row md:items-center md:justify-between">
         <div class="relative flex-1">
@@ -606,13 +586,15 @@ function switchTab(tab) {
 
 function renderCategories() {
   const wrap = document.getElementById('category-pills');
+  const reports = getAllReports();
   wrap.innerHTML = CATEGORIES.map(cat => {
     const active = state.category === cat;
+    const n = cat === '전체' ? reports.length : reports.filter(r => r.category === cat).length;
     return `<button type="button" data-cat="${escapeHtml(cat)}" class="cat-pill rounded-full px-3.5 py-1.5 text-xs font-semibold transition ${
       active
         ? 'bg-amber-500 text-slate-950'
         : 'border border-slate-800 bg-[#131822] text-slate-300 hover:border-slate-600 hover:text-white'
-    }">${escapeHtml(cat)}</button>`;
+    }">${escapeHtml(cat)} <span class="ml-0.5 font-mono-code opacity-60">${n}</span></button>`;
   }).join('');
 
   wrap.querySelectorAll('.cat-pill').forEach(btn => {
@@ -625,7 +607,6 @@ function renderCategories() {
 
 function renderReports() {
   const all = getAllReports();
-  document.getElementById('stat-total').textContent = `${all.length}건`;
   document.getElementById('tab-count-archive').textContent = String(all.length);
 
   let filtered = all.filter(rep => {
